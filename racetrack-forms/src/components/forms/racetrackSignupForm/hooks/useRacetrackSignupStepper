@@ -1,0 +1,58 @@
+import { useStepper } from "../../../context/stepperContext";
+import { z } from 'zod';
+
+export type StepType = 
+    | 'customer' 
+    | 'quickbooks' 
+    | 'integration_settings' 
+    | 'sales_refunds' 
+    | 'non_cash_payments' 
+    | 'sales_taxes' 
+    | 'sales_payments' 
+    | 'sales_reports';
+
+
+export interface RacetrackSignupData {
+  
+    quickbooks: {
+        qbo_realm_id: string;
+        qbo_access_token: string;
+        qbo_refresh_token: string;
+        qbo_account_name: string;
+    },
+    integration_settings: { 
+        integration_name: racetrackIntegrations;
+        dutchie_settings: { // integration name is dutchie
+            dutchie_api_key: string;
+            pos_timezone: string;
+        }
+        flowhub_settings: { // integration name is flowhub
+            flow_token: string;
+            flow_client_id: string;
+            flow_location_id: string;
+        }
+        canixSettings: { // integration name is canix
+            canix_token: string;
+            canix_customer_id: string; // set a default value of "None" but dont show this field in the form
+        }
+    },
+    enable_module_sales_refunds: boolean;
+    salesRefundsSettings: {
+        income_single_register: boolean; // set a default value of falsebut dont show this field in the form
+        income_breakdown: boolean; //flowhub and dutchie only
+        income_cogs_breakdown: boolean; //flowhub and dutchie only  
+        income_discounts_breakdown: boolean;
+        income_sales_cannabis_breakdown: boolean;
+        income_disc_cannabis_breakdown: boolean;
+        income_cogs_cannabis_breakdown: boolean;
+        income_merge_discounts: boolean;
+    },
+    enableModuleNonCashPayments: boolean;
+    nonCashPaymentsSettings: { //
+        non_cash_payment_types: string[];
+    },
+    enableModuleSalesTaxes: boolean;
+    enableModuleSalesPayments: boolean;
+    enableModuleSalesReports: boolean;
+
+}

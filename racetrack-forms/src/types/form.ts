@@ -1,3 +1,5 @@
+import { formSteps } from "../config/formSteps";
+
 // Base types for different integrations
 export type QBOIntegration = {
   qbo_realm_id: string;
@@ -6,7 +8,7 @@ export type QBOIntegration = {
   account_name: string;
 };
 
-export type XeroIntegration = {
+export type coreFields = {
   // Xero specific fields
 };
 
@@ -23,10 +25,17 @@ export type FormData = {
 
 // Context props interface
 export interface FormContextProps {
-  formData: FormData;
-  updateFormData: (property: Partial<FormData>) => void;
   currentStep: number;
   setStep: (step: number) => void;
+  navigateTo: (id: IStep<S>["label"]) => void;
   getVisibleSteps: () => typeof formSteps;
   isStepValid: (stepId: string) => boolean;
+  formData: FormData;
+  updateFormData: (property: Partial<FormData>) => void;
+  steps: IStep<S>[];
+}
+
+export interface IStep<S> {
+    label: S;
+    content: React.ReactNode;
 }

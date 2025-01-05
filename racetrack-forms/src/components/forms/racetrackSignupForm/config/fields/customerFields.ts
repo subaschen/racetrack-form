@@ -11,3 +11,12 @@ export const customerFields = {
   }),
   // ... other customer fields
 } as const;
+
+
+customer: {
+    firs_name: string;
+    last_name: string;
+    email: string;
+    company_name: string;
+    num_locations: number;
+},

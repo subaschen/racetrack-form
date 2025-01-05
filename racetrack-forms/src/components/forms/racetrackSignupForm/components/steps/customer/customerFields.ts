@@ -1,4 +1,4 @@
-import { FieldValues, createField } from '../../../../../types/fields';
+import { FieldValues, createField } from '../../../../types/fields';
 import { z } from 'zod';
 
 export const customerFields = {
@@ -8,7 +8,6 @@ export const customerFields = {
     defaultValue: '',
     visibleFor: ['DUTCHIE', 'FLOWHUB', 'CANIX'],
     required: true,
-    placeholder: "Enter your first name",
     validate: (value) => 
       value.length > 50 ? "Name is too long" : undefined
   }),
