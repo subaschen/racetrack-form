@@ -4,7 +4,7 @@ import Form from '@rjsf/core';
 import validator from '@rjsf/validator-ajv8';
 import { schema } from '../ConfigurationForm/schema';
 import { uiSchema } from '../ConfigurationForm/uiSchema';
-import { useFormContext } from '../../App';
+import { useFormContext } from '../../context/formContext';
 import { QBOAuthWidget } from './widgets/QBOAuthWidget';
 
 // Split your existing schema into steps

@@ -2,8 +2,9 @@ import { useState, createContext, useContext } from 'react'
 import './App.css'
 import { ConfigurationForm } from './components/ConfigurationForm'
 import { FormWizard } from './components/FormWizard'
+import { schema } from './components/ConfigurationForm/schema';
 
-export const FormContext = createContext();
+export const FormContext = createContext(schema.properties);
 
 const FormProvider = ({ children }) => {
   const [currentStep, setCurrentStep] = useState(0);
