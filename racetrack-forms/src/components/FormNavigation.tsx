@@ -1,25 +1,24 @@
 import React from 'react';
 import { useFormContext } from '../context/signUpFormContext';
-import { steps } from './steps/Steps';
+import { isFinalStep } from '../config/stepRegistry';
 
 const FormNavigation: React.FC = () => {
-  const { currentStep, nextStep, previousStep, isCurrentStepValid } = useFormContext();
+  const { currentStep, nextStep, previousStep } = useFormContext();
 
   return (
     <div className="flex justify-between mt-8">
       <button
         className="btn btn-outline"
         onClick={previousStep}
-        disabled={currentStep === 0}
+        disabled={currentStep === 'account'}
       >
         Back
       </button>
       <button
         className="btn btn-primary"
         onClick={nextStep}
-        disabled={!isCurrentStepValid()}
       >
-        {currentStep === steps.length - 1 ? 'Submit' : 'Next'}
+        {isFinalStep(currentStep) ? 'Submit' : 'Next'}
       </button>
     </div>
   );

@@ -1,0 +1,334 @@
+Creating Dynamic Forms with React, Typescript, React Hook Form and Zod
+#
+tutorial
+#
+typescript
+#
+frontend
+#
+webdev
+Introduction
+In my journey as a FullStack Developer at a consulting company, I stumbled upon the magic of dynamic forms. These forms are like chameleons, adjusting to different needs just like ToDo applications such as TickTick or TodoIst. And guess what? They're not limited to to-do lists – they have more cool tricks like creating dynamic relatives forms for a consulting company, blog forms, and whatever you can imagine!
+
+Dynamic Form
+
+Understanding Dynamic Forms:
+See dynamic forms as smart helpers. They change based on what users do or certain conditions. They're like magic for user interfaces, making life easier for developers. Imagine a CRUD where users can add and delete forms – sounds amazing, right? Now, let's keep it simple and see how dynamic forms simplify transitions and development.
+
+What you'll be building
+In this project, you'll build a basic application where users can add students along with their names and emails. It's a simple scenario, but the focus is on learning to use dynamic forms in a professional environment with customizable and scalable business rules.
+
+Learning Objectives
+By the end of this project, you'll:
+
+Understand how to use dynamic forms professionally.
+
+Learn to customize forms based on specific business rules.
+
+Create a simple yet effective student management system.
+
+Note: You should know the basics of Zod, React and Typescript if you want to get the most out of this article.
+
+Project Overview
+Project overview
+You'll develop a user-friendly system allowing users to effortlessly manage student information. The initial features include:
+
+Dynamic Forms: Build forms that adapt to different scenarios, making it easy to add and manage students.
+
+Custom Rules: Implement simple business rules to showcase the flexibility of dynamic forms.
+
+Basic Student Details: Capture student names and emails to lay the foundation for future enhancements.
+
+The project is also available in my Github profile: Go to the Project Repository
+
+Setting Up the Project
+Make sure you have Node.js +18 installed on your computer. Then, create a Vite application using the following command: To set up the project, run the following command:
+
+npm create vite@latest
+Once in the console, establish your project name, select React as a framework and choose Typescript + SWC as the variant. Go to the project root folder and install the project dependencies using npm install.
+
+Installing Dependencies
+Before initializing the project you need to install other dependencies. These will be used to create robust, solid and scalable forms with validations out of the box.
+
+npm i @hookform/resolvers react-hook-form zod
+Setting up Tailwind (Optional)
+Note: You can skip this step if you've already set up another UI library and/or framework.
+
+First, install Tailwind as a dependency in your project using the following commands:
+
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+Once you're done with this step, go to your tailwind.config.js file and all the paths to all your template files:
+
+// tailwind.config.js
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+Now add the corresponding Tailwind directives to your ./src/index.css file:
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+Setting up Flowbite React (Optional)
+Note: You can skip this step if you've already set up another UI library (Like ShadcnUI).
+
+To install Flowbite React run the following command in your project root directory:
+
+npm i flowbite-react
+Now add the Flowbite plugin to tailwind.config.js including flowbite-react:
+
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    // ...
+    'node_modules/flowbite-react/lib/esm/**/*.js',
+  ],
+  plugins: [
+    // ...
+    require('flowbite/plugin'),
+  ],
+};
+Learn more about the installation process in the official Flowbite React Documentation
+
+Setting Up Constants Folder
+Let's start by creating a constants folder inside the src directory. This folder will serve as a central location for storing default data structures and constants related to our application's logic. Within the constants folder, we can define constants that are shared across different parts of our application. For example, in the file form.ts, we might have:
+
+// constants/form.ts
+export const MAX_STUDENTS_LENGTH = 5;
+Some benefits of this approach are:
+
+Maintainability: Having a centralized location for constants makes it easier to manage and update them. Changes can be made in one place, ensuring consistency throughout the application.
+
+Reusability: Constants can be imported and used across various files, promoting code reuse and reducing redundancy.
+
+Clarity: Developers can quickly reference and understand the core business logic by examining the constants folder, enhancing code readability.
+
+Now it's time to start creating the schemas.
+
+Setting Up Schemas
+Create a schemas folder within src to organize Zod schema templates. Start with a schema for students using constants, containing email and name fields. Additionally, set up an array to store student objects.
+
+// schemas/StudentSchema.ts
+import { z } from "zod";
+import { MAX_STUDENTS_LENGTH } from "../constants/form";
+
+const MAX_STRING_LENGTH = 50;
+const MIN_STUDENTS_LENGTH = 1;
+
+const EMPTY_FIELD_MESSAGE = "Field cannot be empty";
+
+const StudentSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: EMPTY_FIELD_MESSAGE })
+    .email({ message: "You must add a valid email" }),
+  name: z
+    .string()
+    .min(1, { message: EMPTY_FIELD_MESSAGE })
+    .max(MAX_STRING_LENGTH, {
+      message: `You can add at most ${MAX_STRING_LENGTH} characters`,
+    })
+    .refine(
+      (value) => /^[a-zA-Z]+[-'s]?[a-zA-Z ]+$/.test(value),
+      "Name should contain only alphabets"
+    ),
+});
+
+const StudentsSchema = z.object({
+  students: z
+    .array(StudentSchema)
+    .min(MIN_STUDENTS_LENGTH, {
+      message: `You need to add at least ${MIN_STUDENTS_LENGTH} student`,
+    })
+    .max(MAX_STUDENTS_LENGTH, {
+      message: `You can add at most ${MAX_STUDENTS_LENGTH} students`,
+    }),
+});
+
+export default StudentsSchema;
+Key Takeways
+StudentSchema defines the structure for individual student data, including their email and name.
+
+The email field must be a valid email address and cannot be empty.
+
+The name field must contain at least one character, be no longer than MAX_STRING_LENGTH characters, and consist of only alphabetic characters, hyphens, apostrophes, and spaces.
+
+The StudentsSchema defines a list of students (students field) as an array, with constraints on the minimum and maximum number of students allowed.
+
+Custom error messages are provided for validation failures, such as empty fields, invalid email format, exceeding character limits, and invalid name format.
+
+Constants like MAX_STUDENTS_LENGTH and MAX_STRING_LENGTH are used to set maximum limits for the number of students and string lengths, ensuring consistency across the application.
+
+Learn more about Zod in the official documentation
+
+Getting Started with React Hook Form
+Start by setting up the form in app.tsx. The first thing we need to do is create our form using React Hook Form and our Zod Schema:
+
+import "./App.css";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { Button, Label, TextInput } from "flowbite-react";
+import { MAX_STUDENTS_LENGTH } from "./constants/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import StudentsSchema from "./schemas/StudentSchema";
+
+function App() {
+  const form = useForm<z.infer<typeof StudentsSchema>>({
+    resolver: zodResolver(StudentsSchema),
+    defaultValues: {
+      students: [
+        {
+          name: "",
+          email: ""
+        }
+      ]
+    }
+  });
+
+  // Get properties from react hook form
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = form;
+
+  // Create dynamic forms
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "students",
+  });
+
+  // Process your values here
+  function onSubmit(values: z.infer<typeof StudentsSchema>) {
+    console.log(values);
+  }
+
+  // JSX Template here
+}
+Code Explanation
+Imports
+
+Import necessary modules and components for the application. This includes stylesheets, React Hook Form functions (useForm, useFieldArray, Controller), UI components (Button, Label, TextInput), constants, and the Zod resolver.
+Form Initialization
+
+Use the useForm hook to initialize the form with type safety using the Zod schema (StudentsSchema).
+
+Provide the Zod resolver (zodResolver) to validate the form based on the specified schema.
+Set default values for the form fields according to the structure defined in the schema.
+
+Destructuring React Hook Form Properties:
+
+Destructure properties from the form object obtained from useForm. This includes control for form control, handleSubmit for handling form submission, and errors for form validation errors.
+Dynamic Forms
+
+Use the useFieldArray hook to create dynamic forms for arrays of input fields. This allows adding and removing fields dynamically. Pass the form control and the name of the array (students) to manage. fields will be the array you'll be working with.
+Form Submission Handling
+
+Define a function onSubmit to handle form submission. It receives the form values with type safety enforced by the Zod schema. Log the form values to the console for demonstration purposes. You can connect to an API endpoint or process the data later.
+Creating the JSX template
+Here's the JSX template incorporating the UI components you've imported:
+
+  return (
+    <form className="space-y-6 m-auto max-w-96" onSubmit={handleSubmit(onSubmit)}>
+      <ul className="space-y-6">
+        {fields.map((item, index) => (
+          <li className="space-y-6" key={item.id}>
+            <h4 className="flex font-medium mb-4">{`Student #${index + 1}`}</h4>
+            <hr></hr>
+            <div className="block">
+              <Label className="flex mb-2" value="Student Email" />
+              <Controller
+                render={({ field }) => (
+                  <TextInput
+                    placeholder="name@flowbite.com"
+                    required
+                    {...field}
+                  />
+                )}
+                name={`students.${index}.email`}
+                control={control}
+              />
+              <p className="text-red-500 font-medium flex text-sm mt-2">
+                {errors.students
+                  ? errors.students[index]?.email?.message
+                  : null}
+              </p>
+            </div>
+            <div className="mb-2 block">
+              <Label className="flex mb-2" value="Student Name" />
+              <Controller
+                render={({ field }) => (
+                  <TextInput type="text" required {...field} />
+                )}
+                name={`students.${index}.name`}
+                control={control}
+              />
+              <p className="text-red-500 font-medium flex text-sm mt-2">
+                {errors.students ? errors.students[index]?.name?.message : null}
+              </p>
+            </div>
+
+            <Button color="failure" type="button" onClick={() => remove(index)}>
+              Delete
+            </Button>
+          </li>
+        ))}
+      </ul>
+      <Button disabled={fields.length >= MAX_STUDENTS_LENGTH} type="button" onClick={() => append({ email: "", name: "" })}>
+        Append
+      </Button>
+
+      <Button type="submit">Submit</Button>
+    </form>
+  );
+}
+Details about this template:
+A form is wrapped with form element.
+
+Inside the form, there's a list (ul) containing dynamically generated form fields for each student.
+
+Each student item includes input fields for email and name, along with error messages if validation fails.
+
+Buttons for appending new student fields, deleting existing ones, and submitting the form are provided at the bottom.
+
+The template is styled using Tailwind CSS classes along with Flowbite React to maintain consistency with the rest of the application's design. Adjustments can be made as needed.
+
+Improvements to Make
+In order to enhance the example provided and make it more adaptable and customizable, you can implement several improvements:
+
+Custom Components for Validation Errors:
+
+Instead of directly rendering error messages within the form, you can create custom components such as toasts for displaying validation errors. This allows for better customization and reusability.
+Change UI Library:
+
+If you decide to switch UI libraries or frameworks, ensure that the components used in the form are compatible with the new library. This can involve updating component imports and adjusting styles accordingly.
+Enhance Accessibility:
+
+Ensure that the form is accessible to all users by adding appropriate ARIA attributes, focus management, and keyboard navigation.
+Localization Support:
+
+If your application supports multiple languages, consider adding localization support for error messages and form labels.
+Error Handling and Feedback:
+
+Provide clear error handling and feedback mechanisms for users, such as displaying error messages in a prominent location and highlighting invalid fields.
+Form Validation Logic:
+
+Depending on the complexity of your application, you may need to implement additional validation logic beyond what's provided by Zod. This could include custom validation rules or asynchronous validation.
+Testing:
+
+Write tests to ensure that the form functions as expected under different scenarios, including edge cases and error conditions.
+Documentation:
+
+Document the form's usage, props, and any customizations made for future reference and for other developers working on the project.
+Conclusion
+Dynamic forms are a crucial aspect of modern frontend development and integrating libraries like React Hook Form with TypeScript, Zod, and Tailwind CSS can greatly simplify the process while ensuring type safety.
+
+Now you've learned how to create a simple student management system with dynamic form functionality. By implementing the suggested improvements and adapting the example to your specific requirements you can create robust and user-friendly forms tailored to your application's needs.
+
+Thanks for reading, and don't hesitate to leave a comment with your feedback and suggestions for further improvements! Your input is really valuable to me to keep creating content. 😉

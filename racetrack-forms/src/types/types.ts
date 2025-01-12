@@ -1,8 +1,6 @@
-export type IntegrationType = 'dutchie' | 'flowhub' | 'canix' | null;
+export type NonEmptyArray<T> = [T, ...T[]];
 
-export type ReportTypes = ['TRANSACTION', 'INVENTORY', 'INCOME', 'OVERSHORT_LITE', 'DEBIT'];
-
-export interface SignUpFormData {
+export interface OldSignUpFormData {
   // Account Creation
   first_name?: string;
   last_name?: string;
@@ -12,7 +10,7 @@ export interface SignUpFormData {
   confirm_password?: string;
   
   // Integration Type
-  integration_name?: IntegrationType;
+  integration_name?: string;
 
   // Connect to Quickbooks Online
   qbo_realm_id?: string;
@@ -72,7 +70,7 @@ export interface SignUpFormData {
   watermark?: string; 
 }
 
-export const defaultSignUpFormData: SignUpFormData = {
+export const defaultSignUpFormData: OldSignUpFormData = {
    // Account Creation
    first_name: "",
    last_name: "",
@@ -82,7 +80,7 @@ export const defaultSignUpFormData: SignUpFormData = {
    confirm_password: "",
    
    // Integration Type
-   integration_name: null,
+   integration_name: undefined,
  
    // Connect to Quickbooks Online
    qbo_realm_id: "",
@@ -99,19 +97,7 @@ export const defaultSignUpFormData: SignUpFormData = {
    time_zone: "",
    
    //Sales + Refunds
-   income_single_register: false,
-   income_breakdown: false,
-   income_cogs_breakdown: false,
-   income_discounts_breakdown: false,
-   income_disc_cannabis_breakdown: false,
-   income_merge_discounts: false,
-   income_sales_cannabis_breakdown: false,
-   income_tax_inclusive: false,
-   income_tracking_class_map: {"ALL_TX_TYPES":""},
-   income_tax_naming_map: {},
-   sales_customer_name: "*POS Sales Info",
-   income_sales_line_name: "Sales",
-   income_cogs_cannabis_breakdown: false,
+ 
  
    //Debit and Non Cash Payments
    debit_payment_types: {
@@ -153,6 +139,6 @@ export const defaultSignUpFormData: SignUpFormData = {
 export interface FormStep {
   id: string;
   title: string;
-  isValid: (data: SignUpFormData) => boolean;
-  isApplicable: (data: SignUpFormData) => boolean;
+  isValid: (data: OldSignUpFormData) => boolean;
+  isApplicable: (data: OldSignUpFormData) => boolean;
 }

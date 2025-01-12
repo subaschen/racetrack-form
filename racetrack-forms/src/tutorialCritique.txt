@@ -1,0 +1,182 @@
+Tutorial's Approach - Issues:
+
+// 1. Mutable State and Side Effects
+function App() {
+  const form = useForm({
+    defaultValues: {
+      students: [{ name: "", email: "" }]
+    }
+  });
+  
+  // Side effect in form handling
+  function onSubmit(values) {
+    console.log(values);  // Side effect
+  }
+}
+
+// 2. Mixed Concerns
+return (
+  <form>
+    {fields.map((item, index) => (
+      // Mixing display logic, form logic, and validation
+      <div>
+        <Controller />
+        <p>{errors.students?.[index]?.email?.message}</p>
+      </div>
+    ))}
+  </form>
+);
+
+More Functional Approach:
+
+// 1. Separate Data Types
+type Student = {
+  name: string;
+  email: string;
+};
+
+// 2. Pure Validation Logic
+const validateStudent = (student: Student): ValidationResult => ({
+  name: isValidName(student.name),
+  email: isValidEmail(student.email)
+});
+
+// 3. Separate Components by Concern
+const StudentField: React.FC<{
+  index: number;
+  control: Control<FormData>;
+  errors?: FieldErrors;
+}> = ({ index, control, errors }) => (
+  <FormField
+    name={`students.${index}.email`}
+    control={control}
+    render={({ field }) => (
+      <EmailInput
+        {...field}
+        error={errors?.students?.[index]?.email}
+      />
+    )}
+  />
+);
+
+// 4. Pure Form Container
+const StudentForm: React.FC = () => {
+  const methods = useForm<FormData>({
+    resolver: zodResolver(studentSchema)
+  });
+
+  const handleSubmit = useCallback(
+    (data: FormData) => submitStudent(data),
+    []
+  );
+
+  return (
+    <FormProvider {...methods}>
+      <StudentFormFields />
+      <SubmitButton onSubmit={handleSubmit} />
+    </FormProvider>
+  );
+};
+
+Key Functional Programming Principles to Apply:
+Immutability
+// Instead of direct mutation:
+const addStudent = (students: Student[], newStudent: Student) => 
+  [...students, newStudent];
+
+// Instead of field arrays with mutation:
+const StudentList: React.FC<{students: Student[]}> = ({ students }) => (
+  <>
+    {students.map(renderStudent)}
+    <AddStudentButton 
+      onClick={() => setStudents(addStudent(students, EMPTY_STUDENT))}
+    />
+  </>
+);
+
+Pure Functions
+// Validation as pure function
+const validateEmail = (email: string): ValidationResult => ({
+  isValid: EMAIL_REGEX.test(email),
+  message: EMAIL_REGEX.test(email) ? null : 'Invalid email'
+});
+
+// Form transformation as pure function
+const transformFormData = (data: RawFormData): ProcessedFormData => ({
+  students: data.students.map(normalizeStudent)
+});
+
+
+3. **Composition**
+```typescript
+// Compose form validation
+const validateForm = compose(
+  validateRequiredFields,
+  validateEmailFormat,
+  validateStudentLimit
+);
+
+// Compose UI components
+const StudentFormField = compose(
+  withValidation,
+  withLabel,
+  withErrorMessage
+)(InputField);
+```
+Suggested Improvements:
+
+1. **Type Safety**
+```typescript
+// Strong typing for form state
+interface FormState {
+  readonly students: ReadonlyArray<Student>;
+  readonly errors: Readonly<ValidationErrors>;
+  readonly status: FormStatus;
+}
+
+// Type-safe actions
+type FormAction = 
+  | { type: 'ADD_STUDENT'; student: Student }
+  | { type: 'REMOVE_STUDENT'; index: number }
+  | { type: 'UPDATE_STUDENT'; index: number; student: Student };
+```
+
+2. **State Management**
+```typescript
+// Use reducers for predictable state updates
+const formReducer = (
+  state: FormState, 
+  action: FormAction
+): FormState => {
+  switch (action.type) {
+    case 'ADD_STUDENT':
+      return {
+        ...state,
+        students: [...state.students, action.student]
+      };
+    // ... other cases
+  }
+};
+```
+
+3. **Component Structure**
+```typescript
+// Separate smart and dumb components
+const SmartStudentForm: React.FC = () => {
+  const methods = useForm<FormData>();
+  return <PureStudentForm {...methods} />;
+};
+
+const PureStudentForm: React.FC<FormProps> = ({
+  students,
+  onAdd,
+  onRemove,
+  onSubmit
+}) => (
+  <form>
+    <StudentList students={students} onRemove={onRemove} />
+    <AddButton onClick={onAdd} />
+    <SubmitButton onClick={onSubmit} />
+  </form>
+);
+```

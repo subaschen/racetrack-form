@@ -1,72 +1,95 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { SignUpFormData } from '../types/types';
-import { steps } from '../components/steps/Steps';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { FormProvider as RHFProvider, UseFormReturn, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { SignUpFormData } from '../types/form';
+import { stepRegistry, isFinalStep, getPreviousVisibleStep, getNextVisibleStep } from '../config/stepRegistry';
+import { StepId } from '../types/steps';
+import { z } from 'zod';
+
 interface FormContextType {
-  formData: SignUpFormData;
-  currentStep: number;
-  updateFormData: (data: Partial<SignUpFormData>) => void;
-  nextStep: () => void;
+  currentStep: StepId;
+  nextStep: () => Promise<void>;
   previousStep: () => void;
-  isCurrentStepValid: () => boolean;
+  methods: UseFormReturn<SignUpFormData>;
+  isLastStep: boolean;
 }
+
+
 
 const FormContext = createContext<FormContextType | undefined>(undefined);
 
 export const FormProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [formData, setFormData] = useState<SignUpFormData>(() => {
-    // Load saved data from localStorage if available
-    const savedData = localStorage.getItem('integrationFormData');
-    return savedData ? JSON.parse(savedData) : {};
+  const [currentStep, setCurrentStep] = useState<StepId>(() => {
+    const savedStep = localStorage.getItem('signUpFormStep') as StepId;
+    return savedStep || 'account';
   });
-  
-  const [currentStep, setCurrentStep] = useState<number>(() => {
-    const savedStep = localStorage.getItem('integrationFormStep');
-    return savedStep ? parseInt(savedStep, 10) : 0;
+
+  const methods = useForm<SignUpFormData>({
+    defaultValues: {
+      ...JSON.parse(localStorage.getItem('signupFormData') || '{}')
+    },
+    resolver: zodResolver(stepRegistry[currentStep].schema || z.object({})), //todo: remove when we add better structuring for steps without schemas
+    mode: 'onChange'
   });
 
   useEffect(() => {
-    // Save form data to localStorage whenever it changes
-    localStorage.setItem('integrationFormData', JSON.stringify(formData));
-    localStorage.setItem('integrationFormStep', currentStep.toString());
-  }, [formData, currentStep]);
+    const subscription = methods.watch((data) => {
+      localStorage.setItem('signupFormData', JSON.stringify(data));
+    });
+    return () => subscription.unsubscribe();
+  }, [methods.watch]);
 
-  const updateFormData = (newData: Partial<SignUpFormData>) => {
-    setFormData(prev => ({ ...prev, ...newData }));
-  };
-
-  const nextStep = () => {
-    if (isCurrentStepValid()) {
-      setCurrentStep(prev => prev + 1);
+  const nextStep = async () => {
+    const formData = methods.getValues();
+    console.log('Current form data:', formData);
+    
+    // Validate current step
+    const isValid = await methods.trigger();
+    console.log('Form validation result:', isValid);
+    
+    if (isValid) {
+      const nextStepId = getNextVisibleStep(currentStep, formData);
+      console.log('Next step:', nextStepId);
+      if (nextStepId) {
+        setCurrentStep(nextStepId);
+        localStorage.setItem('signUpFormStep', nextStepId);
+      }
     }
   };
 
   const previousStep = () => {
-    setCurrentStep(prev => Math.max(0, prev - 1));
+    const formData = methods.getValues();
+    localStorage.setItem('signupFormData', JSON.stringify(formData));
+    
+    const prevStepId = getPreviousVisibleStep(currentStep, formData);
+    if (prevStepId) {
+      setCurrentStep(prevStepId);
+      localStorage.setItem('signUpFormStep', prevStepId);
+    }
   };
 
-  const isCurrentStepValid = () => {
-    return steps[currentStep]?.isValid(formData) ?? false;
-  };
+  const isLastStep : boolean = isFinalStep(currentStep);
 
   return (
     <FormContext.Provider 
       value={{ 
-        formData, 
-        currentStep, 
-        updateFormData, 
-        nextStep, 
-        previousStep, 
-        isCurrentStepValid 
+        currentStep,
+        nextStep,
+        previousStep,
+        methods,
+        isLastStep
       }}
     >
-      {children}
+      <RHFProvider {...methods}>
+        {children}
+      </RHFProvider>
     </FormContext.Provider>
   );
 };
 
 export const useFormContext = () => {
   const context = useContext(FormContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useFormContext must be used within a FormProvider');
   }
   return context;

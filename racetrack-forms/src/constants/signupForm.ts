@@ -1,1 +1,0 @@
-export const DUTCHIE_KEY_LENGTH = 32;
