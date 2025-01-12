@@ -1,9 +1,9 @@
 import React from 'react';
-import { useForm } from '../context/signUpFormContext';
-import { steps } from './Steps';
+import { useFormContext } from '../context/signUpFormContext';
+import { steps } from './steps/Steps';
 
 const FormStepper: React.FC = () => {
-  const { currentStep, formData } = useForm();
+  const { currentStep, formData } = useFormContext();
 
   return (
     <div className="flex flex-col sm:flex-row justify-between mb-8">
@@ -44,4 +44,4 @@ const FormStepper: React.FC = () => {
   );
 };
 
-export default FormStepper;
+export default FormStepper; 

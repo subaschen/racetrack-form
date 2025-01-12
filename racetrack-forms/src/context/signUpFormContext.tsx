@@ -1,10 +1,10 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { FormData, FormStep } from '../types/types';
-import { steps } from '../components/Steps';
+import { SignUpFormData } from '../types/types';
+import { steps } from '../components/steps/Steps';
 interface FormContextType {
-  formData: FormData;
+  formData: SignUpFormData;
   currentStep: number;
-  updateFormData: (data: Partial<FormData>) => void;
+  updateFormData: (data: Partial<SignUpFormData>) => void;
   nextStep: () => void;
   previousStep: () => void;
   isCurrentStepValid: () => boolean;
@@ -13,7 +13,7 @@ interface FormContextType {
 const FormContext = createContext<FormContextType | undefined>(undefined);
 
 export const FormProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [formData, setFormData] = useState<FormData>(() => {
+  const [formData, setFormData] = useState<SignUpFormData>(() => {
     // Load saved data from localStorage if available
     const savedData = localStorage.getItem('integrationFormData');
     return savedData ? JSON.parse(savedData) : {};
@@ -30,7 +30,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('integrationFormStep', currentStep.toString());
   }, [formData, currentStep]);
 
-  const updateFormData = (newData: Partial<FormData>) => {
+  const updateFormData = (newData: Partial<SignUpFormData>) => {
     setFormData(prev => ({ ...prev, ...newData }));
   };
 
@@ -64,10 +64,10 @@ export const FormProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-export const useForm = () => {
+export const useFormContext = () => {
   const context = useContext(FormContext);
   if (context === undefined) {
-    throw new Error('useForm must be used within a FormProvider');
+    throw new Error('useFormContext must be used within a FormProvider');
   }
   return context;
 };

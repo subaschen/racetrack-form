@@ -1,9 +1,9 @@
 import React from 'react';
-import { useForm } from '../context/signUpFormContext';
+import { useFormContext } from '../context/signUpFormContext';
 import { IntegrationType } from '../types/types';
 
 const FormStep: React.FC = () => {
-  const { currentStep, formData, updateFormData } = useForm();
+  const { currentStep, formData, updateFormData } = useFormContext();
 
   switch (currentStep) {
     case 0:
@@ -17,8 +17,8 @@ const FormStep: React.FC = () => {
               </label>
               <select
                 className="select select-bordered w-full"
-                value={formData.integrationType || ''}
-                onChange={(e) => updateFormData({ integrationType: e.target.value as IntegrationType })}
+                value={formData.integration_name || ''}
+                onChange={(e) => updateFormData({ integration_name: e.target.value as IntegrationType })}
               >
                 <option value="">Select integration type</option>
                 <option value="dutchie">Dutchie</option>
@@ -42,8 +42,8 @@ const FormStep: React.FC = () => {
               <input
                 type="password"
                 className="input input-bordered w-full"
-                value={formData.apiKey || ''}
-                onChange={(e) => updateFormData({ apiKey: e.target.value })}
+                value={formData.dutchie_key || ''}
+                onChange={(e) => updateFormData({ dutchie_key: e.target.value })}
               />
             </div>
             <div className="form-control">
@@ -52,8 +52,8 @@ const FormStep: React.FC = () => {
               </label>
               <select
                 className="select select-bordered w-full"
-                value={formData.timeZone || ''}
-                onChange={(e) => updateFormData({ timeZone: e.target.value })}
+                value={formData.time_zone || ''}
+                onChange={(e) => updateFormData({ time_zone: e.target.value })}
               >
                 <option value="">Select time zone</option>
                 <option value="America/New_York">Eastern Time</option>
@@ -68,8 +68,8 @@ const FormStep: React.FC = () => {
               </label>
               <select
                 className="select select-bordered w-full"
-                value={formData.accountingBasis || ''}
-                onChange={(e) => updateFormData({ accountingBasis: e.target.value as 'Cash' | 'Accrual' })}
+                value={formData.accounting_basis || ''}
+                onChange={(e) => updateFormData({ accounting_basis: e.target.value as 'Cash' | 'Accrual' })}
               >
                 <option value="">Select accounting basis</option>
                 <option value="Cash">Cash</option>
@@ -83,8 +83,8 @@ const FormStep: React.FC = () => {
               <input
                 type="text"
                 className="input input-bordered w-full"
-                value={formData.parentAccountName || ''}
-                onChange={(e) => updateFormData({ parentAccountName: e.target.value })}
+                value={formData.parent_acc_name || ''}
+                onChange={(e) => updateFormData({ parent_acc_name: e.target.value })}
               />
             </div>
           </div>

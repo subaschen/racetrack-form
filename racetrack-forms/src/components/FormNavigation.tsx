@@ -1,9 +1,9 @@
 import React from 'react';
-import { useForm } from '../context/signUpFormContext';
-import { steps } from './Steps';
+import { useFormContext } from '../context/signUpFormContext';
+import { steps } from './steps/Steps';
 
 const FormNavigation: React.FC = () => {
-  const { currentStep, nextStep, previousStep, isCurrentStepValid } = useForm();
+  const { currentStep, nextStep, previousStep, isCurrentStepValid } = useFormContext();
 
   return (
     <div className="flex justify-between mt-8">
