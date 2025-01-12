@@ -10,6 +10,7 @@ interface FormContextType {
   currentStep: StepId;
   nextStep: () => Promise<void>;
   previousStep: () => void;
+  setCurrentStep: (step: StepId) => void;
   methods: UseFormReturn<SignUpFormData>;
   isLastStep: boolean;
 }
@@ -19,7 +20,7 @@ interface FormContextType {
 const FormContext = createContext<FormContextType | undefined>(undefined);
 
 export const FormProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentStep, setCurrentStep] = useState<StepId>(() => {
+  const [currentStep, setCurrentStepState] = useState<StepId>(() => {
     const savedStep = localStorage.getItem('signUpFormStep') as StepId;
     return savedStep || 'account';
   });
@@ -51,7 +52,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const nextStepId = getNextVisibleStep(currentStep, formData);
       console.log('Next step:', nextStepId);
       if (nextStepId) {
-        setCurrentStep(nextStepId);
+        setCurrentStepState(nextStepId);
         localStorage.setItem('signUpFormStep', nextStepId);
       }
     }
@@ -63,9 +64,14 @@ export const FormProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     const prevStepId = getPreviousVisibleStep(currentStep, formData);
     if (prevStepId) {
-      setCurrentStep(prevStepId);
+      setCurrentStepState(prevStepId);
       localStorage.setItem('signUpFormStep', prevStepId);
     }
+  };
+
+  const setCurrentStep = (stepId: StepId) => {
+    localStorage.setItem('signUpFormStep', stepId);
+    setCurrentStepState(stepId);
   };
 
   const isLastStep : boolean = isFinalStep(currentStep);
@@ -76,6 +82,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode }> = ({ children
         currentStep,
         nextStep,
         previousStep,
+        setCurrentStep,
         methods,
         isLastStep
       }}

@@ -9,6 +9,9 @@ import QBOConnectionStep from '../integrations/QBOConnectionStep';
 import { configureIntegrationSchema } from '../integrations/configureIntegration.schema'; 
 import ConfigureIntegrationStep from '../integrations/ConfigureIntegrationStep';
 import SummaryStep from '../components/steps/Summary';
+import { salesReceiptsSchema } from '../modules/salesReceipts/salesReceipts.schema';
+import SalesReceiptsStep from '../modules/salesReceipts/ModuleSalesReceiptsStep';
+
 export const stepRegistry: Record<StepId, FormStep> = {
   account: {
     id: 'account',
@@ -38,14 +41,14 @@ export const stepRegistry: Record<StepId, FormStep> = {
     component: ConfigureIntegrationStep,
     isVisible: (data) => !!data.integration_name && !!data.qbo_realm_id,
   },
-    /*
   salesReceipts: {
     id: 'salesReceipts',
-    title: '',
-    schema: undefined,
-    component: undefined,
-    isVisible: () => false
+    title: 'Sales & Refund Receipts',
+    schema: salesReceiptsSchema,
+    component: SalesReceiptsStep,
+    isVisible: () => true
   },
+      /*
   debitPayments: {
     id: 'debitPayments',
     title: '',
@@ -73,7 +76,7 @@ export const stepRegistry: Record<StepId, FormStep> = {
     title: 'Review & Submit',
     schema: undefined,
     component: SummaryStep,
-    isVisible: (data) => !!data.qbo_realm_id,
+    isVisible: () => true,
   }
 } as const satisfies Readonly<Record<StepId, FormStep>>;
 
@@ -83,6 +86,8 @@ export const orderedSteps: ReadonlyFormSteps = [
   stepRegistry.selectIntegration,
   stepRegistry.connectQbo,
   stepRegistry.configureIntegration,
+  stepRegistry.salesReceipts,
+  stepRegistry.summary
 ] as const satisfies ReadonlyFormSteps;
 
 // Helper functions

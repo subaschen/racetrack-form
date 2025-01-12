@@ -1,0 +1,25 @@
+Set up base types and constants:
+Define integration types from existing INTEGRATIONS constant
+Create MODULE_ENABLED_INTEGRATIONS constant and related types
+Define helper types for type safety
+
+Create module folder structure:
+One folder per module (e.g., salesReceipts/)
+Include components/, schemas/, types/, config/ subfolders
+Create index.ts for clean exports
+
+Define module-level configuration:
+
+Create integration-specific feature sets
+Define feature availability per integration
+Add helper methods for feature checking
+
+Connect to form system:
+Update step registry to use new configuration
+Add conditional rendering based on integration type
+Implement validation based on enabled features
+
+Add type safety layers:
+Ensure configurations are provided for all enabled integrations
+Prevent configurations for disabled integrations
+Type guard runtime checks

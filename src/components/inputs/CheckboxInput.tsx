@@ -6,13 +6,15 @@ interface CheckboxInputProps {
   name: keyof SignUpFormData;
   register: UseFormRegister<SignUpFormData>;
   error?: FieldError;
+  defaultChecked?: boolean;
 }
 
 export const CheckboxInput: React.FC<CheckboxInputProps> = ({
   label,
   name,
   register,
-  error
+  error,
+  defaultChecked
 }) => {
   return (
     <div className="form-control">
@@ -21,6 +23,7 @@ export const CheckboxInput: React.FC<CheckboxInputProps> = ({
         <input
           type="checkbox"
           className={`checkbox ${error ? 'checkbox-error' : ''}`}
+          defaultChecked={defaultChecked}
           {...register(name)}
         />
       </label>

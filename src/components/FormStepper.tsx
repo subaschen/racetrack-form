@@ -7,7 +7,7 @@ const FormStepper: React.FC = () => {
   const currentIndex = orderedSteps.findIndex(step => step.id === currentStep);
 
   return (
-    <ul className="steps w-full mb-8">
+    <ul className="steps steps-vertical w-full mb-8">
       {orderedSteps.map((step, index) => (
         <li 
           key={step.id}

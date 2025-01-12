@@ -8,6 +8,7 @@ interface TextInputProps {
   error?: FieldError;
   type?: 'text' | 'password' | 'email';
   placeholder?: string;
+  defaultValue?: string | number;
 }
 
 export const TextInput: React.FC<TextInputProps> = ({
@@ -16,7 +17,8 @@ export const TextInput: React.FC<TextInputProps> = ({
   register,
   error,
   type = 'text',
-  placeholder
+  placeholder,
+  defaultValue
 }) => {
   return (
     <div className="form-control w-full">
@@ -25,7 +27,7 @@ export const TextInput: React.FC<TextInputProps> = ({
       </label>
       <input
         type={type}
-        placeholder={placeholder}
+        placeholder={placeholder || defaultValue?.toString()}
         className={`input input-bordered w-full font-lexend ${error ? 'input-error' : ''}`}
         {...register(name)}
       />

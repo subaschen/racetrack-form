@@ -8,9 +8,8 @@ export type StepId =
     | 'selectIntegration'
     | 'connectQbo'
     | 'configureIntegration'
-    /*
-    | 'configureIntegration'
     | 'salesReceipts'
+    /*
     | 'debitPayments'
     | 'vendorBills'
     | 'overshort'
